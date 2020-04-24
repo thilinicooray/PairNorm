@@ -32,6 +32,11 @@ parser.add_argument('--missing_rate', type=int, default=0, help='missing rate, f
 
 args = parser.parse_args()
 
+torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+torch.backends.cudnn.deterministic=True
+torch.backends.cudnn.benchmark=False
+
 # logger
 #filename='example.log'
 logging.basicConfig(format='%(message)s', level=getattr(logging, args.log.upper())) 
