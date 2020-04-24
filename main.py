@@ -29,11 +29,12 @@ parser.add_argument('--norm_scale', type=float, default=1.0, help='Row-normaliza
 # for data
 parser.add_argument('--no_fea_norm', action='store_false', default=True, help='not normalize feature' )
 parser.add_argument('--missing_rate', type=int, default=0, help='missing rate, from 0 to 100' )
+parser.add_argument('--seed', type=int, default=42, help='seed for random values' )
 
 args = parser.parse_args()
 
-torch.manual_seed(48)
-torch.cuda.manual_seed(48)
+torch.manual_seed(args.seed)
+torch.cuda.manual_seed(args.seed)
 torch.backends.cudnn.deterministic=True
 torch.backends.cudnn.benchmark=False
 
