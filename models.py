@@ -59,7 +59,7 @@ class GCN(nn.Module):
         x = self.relu(self.gc1(x, adj))
 
         #vae
-        mu_n, var_n = self.encode(self.dropout(x), adj, self.gc_mu_adj, self.gc_logvar_adj, self.gc_mu_node, self.gc_logvar_node)
+        mu_n, var_n = self.encode(self.dropout(x), adj, self.gc_mu_node, self.gc_logvar_node)
         z_n = self.reparameterize(mu_n, var_n)
 
 
