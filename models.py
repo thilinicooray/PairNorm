@@ -37,7 +37,7 @@ class GCN(nn.Module):
         self.gc_logvar_node = GraphConv(nhid, nhid)
 
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
-        self.node_regen = GraphConv(nhid, nhid+nfeat)
+        self.node_regen = GraphConv(nhid, nfeat)
 
         self.dropout = nn.Dropout(p=dropout)
         self.relu = nn.ReLU(True)
