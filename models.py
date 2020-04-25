@@ -27,7 +27,7 @@ class GCN(nn.Module):
                  norm_mode='None', norm_scale=1, **kwargs):
         super(GCN, self).__init__()
         self.gc1 = GraphConv(nfeat, nhid)
-        self.gc2 = GraphConv(nhid, nclass)
+        self.gc2 = GraphConv(nhid+nfeat, nclass)
 
         #vae
         self.gc_mu_adj = GraphConv(nhid, nhid)
