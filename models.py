@@ -1,9 +1,5 @@
 from layers import *
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 class SGC(nn.Module):
     # for SGC we use data without normalization
     def __init__(self, nfeat, nhid, nclass, dropout, nlayer=2, norm_mode='None', norm_scale=10, **kwargs):
@@ -29,49 +25,15 @@ class GCN(nn.Module):
         self.gc1 = GraphConv(nfeat, nhid)
         self.gc2 = GraphConv(nhid, nclass)
 
-        #vae
-        self.gc_mu_adj = GraphConv(nhid, nhid)
-        self.gc_logvar_adj = GraphConv(nhid, nhid)
-
-        self.gc_mu_node = GraphConv(nhid, nhid)
-        self.gc_logvar_node = GraphConv(nhid, nhid)
-
-        self.dc = InnerProductDecoder(dropout, act=lambda x: x)
-        self.node_regen = nn.Linear(nhid, nfeat)
-
         self.dropout = nn.Dropout(p=dropout)
         self.relu = nn.ReLU(True)
         self.norm = PairNorm(norm_mode, norm_scale)
 
-    def encode(self, hidden1, adj, gc2, gc3):
-        return self.relu(gc2(hidden1, adj)), self.relu(gc3(hidden1, adj))
-
-    def reparameterize(self, mu, logvar):
-        if self.training:
-            std = torch.exp(logvar)
-            eps = torch.randn_like(std)
-            return eps.mul(std).add_(mu)
-        else:
-            return mu
-
-    def forward(self, x_org, adj):
-        x = self.dropout(x_org)
-        x = self.relu(self.gc1(x, adj))
-
-        #vae
-        '''
-        mu_n, var_n = self.encode(self.dropout(x), adj, self.gc_mu_node, self.gc_logvar_node)
-        z_n = self.reparameterize(mu_n, var_n)
-
-
-
-        a1 = self.relu(self.node_regen(self.dropout(z_n)))
-        zero_vec = -9e15*torch.ones_like(a1)
-        masked_nodes = torch.where(x_org > 0, a1, zero_vec)
-        a1 = F.softmax(masked_nodes, dim=1)
-
-        x = torch.cat([a1, x], -1)'''
-        #x = self.norm(x)
+    def forward(self, x, adj):
+        x = self.dropout(x)
+        x = self.gc1(x, adj)
+        x = self.norm(x)
+        x = self.relu(x)
         x = self.dropout(x)
         x = self.gc2(x, adj)
         return x
@@ -160,17 +122,3 @@ class DeepGAT(nn.Module):
         x = self.dropout(x)
         x = self.out_layer(x, adj)
         return x
-
-
-class InnerProductDecoder(nn.Module):
-    """Decoder for using inner product for prediction."""
-
-    def __init__(self, dropout, act=torch.sigmoid):
-        super(InnerProductDecoder, self).__init__()
-        self.dropout = dropout
-        self.act = act
-
-    def forward(self, z):
-        z = F.dropout(z, self.dropout, training=self.training)
-        adj = self.act(torch.mm(z, z.t()))
-        return adj
