@@ -30,14 +30,14 @@ def train(net, optimizer, criterion, data):
 
 def val(net, criterion, data):
     net.eval()
-    output = net(data.x, data.adj)
+    noderegen, recovered, mu, logvar, mu_n, var_n, output = net(data.x, data.adj)
     loss_val = criterion(output[data.val_mask], data.y[data.val_mask])
     acc_val = accuracy(output[data.val_mask], data.y[data.val_mask])
     return loss_val, acc_val
 
 def test(net, criterion, data):
     net.eval()
-    output = net(data.x, data.adj)
+    noderegen, recovered, mu, logvar, mu_n, var_n, output = net(data.x, data.adj)
     loss_test = criterion(output[data.test_mask], data.y[data.test_mask])
     acc_test = accuracy(output[data.test_mask], data.y[data.test_mask])
     return loss_test, acc_test
