@@ -81,7 +81,7 @@ class DeepGCN(nn.Module):
         for i, layer in enumerate(self.hidden_layers):
             x = self.dropout(x)
             x = layer(x, adj)
-            x = self.norm(x)
+            #x = self.norm(x)
             x = self.relu(x)
             if self.skip>0 and i%self.skip==0:
                 x = x + x_old
