@@ -27,7 +27,7 @@ class GCN(nn.Module):
                  norm_mode='None', norm_scale=1, **kwargs):
         super(GCN, self).__init__()
         self.gc1 = GraphConv(nfeat, nhid)
-        self.gc2 = GraphConv(nhid+nfeat, nclass)
+        self.gc2 = GraphConv(nhid, nclass)
 
         #vae
         self.gc_mu_adj = GraphConv(nhid, nhid)
@@ -59,6 +59,7 @@ class GCN(nn.Module):
         x = self.relu(self.gc1(x, adj))
 
         #vae
+        '''
         mu_n, var_n = self.encode(self.dropout(x), adj, self.gc_mu_node, self.gc_logvar_node)
         z_n = self.reparameterize(mu_n, var_n)
 
@@ -69,11 +70,11 @@ class GCN(nn.Module):
         masked_nodes = torch.where(x_org > 0, a1, zero_vec)
         a1 = F.softmax(masked_nodes, dim=1)
 
-        x = torch.cat([a1, x], -1)
+        x = torch.cat([a1, x], -1)'''
         #x = self.norm(x)
         x = self.dropout(x)
         x = self.gc2(x, adj)
-        return a1,  mu_n, var_n, x
+        return x
 
 class GAT(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout, nhead, 
