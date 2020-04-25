@@ -21,7 +21,8 @@ def load_data(data_name='cora', normalize_feature=True, missing_rate=0, cuda=Fal
     adj = sp.csr_matrix((np.ones(data.edge_index.shape[1]), data.edge_index), shape=(n,n))
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj) + sp.eye(adj.shape[0])
     adj = normalize_adj_row(adj) # symmetric normalization works bad, but why? Test more. 
-    data.adj = to_torch_sparse(adj)
+    #data.adj = to_torch_sparse(adj)
+    data.adj = torch.FloatTensor(np.array(adj.todense()))
     # normalize feature
     if normalize_feature:
         data.x = row_l1_normalize(data.x)
