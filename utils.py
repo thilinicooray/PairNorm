@@ -36,7 +36,7 @@ def val(net, criterion, data):
 
 def test(net, criterion, data):
     net.eval()
-    noderegen, recovered, mu_n, var_n, output = net(data.x, data.adj)
+    noderegen,  mu_n, var_n, output = net(data.x, data.adj)
     loss_test = criterion(output[data.test_mask], data.y[data.test_mask])
     acc_test = accuracy(output[data.test_mask], data.y[data.test_mask])
     return loss_test, acc_test
