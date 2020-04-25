@@ -56,7 +56,7 @@ net = getattr(models, args.model)(nfeat, args.hid, nclass,
 net = net.cuda()
 optimizer = torch.optim.Adam(net.parameters(), args.lr, weight_decay=args.wd)
 criterion = torch.nn.CrossEntropyLoss()
-logging.info(net)
+#logging.info(net)
 
 # train
 best_acc = 0 
@@ -64,8 +64,8 @@ best_loss = 1e10
 for epoch in range(args.epochs):
     train_loss, train_acc = train(net, optimizer, criterion, data)
     val_loss, val_acc = val(net, criterion, data)
-    logging.debug('Epoch %d: train loss %.3f train acc: %.3f, val loss: %.3f val acc %.3f.'%
-                (epoch, train_loss, train_acc, val_loss, val_acc))
+    '''logging.debug('Epoch %d: train loss %.3f train acc: %.3f, val loss: %.3f val acc %.3f.'%
+                (epoch, train_loss, train_acc, val_loss, val_acc))'''
     # save model 
     if best_acc < val_acc:
         best_acc = val_acc
@@ -81,6 +81,6 @@ val_loss, val_acc = val(net, criterion, data)
 test_loss, test_acc = test(net, criterion, data)
 
 logging.info("-"*50)
-logging.info("Vali set results: loss %.3f, acc %.3f."%(val_loss, val_acc))
+#logging.info("Vali set results: loss %.3f, acc %.3f."%(val_loss, val_acc))
 logging.info("Test set results: loss %.3f, acc %.3f."%(test_loss, test_acc))
 logging.info("="*50)
