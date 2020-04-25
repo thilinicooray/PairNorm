@@ -19,9 +19,9 @@ def train(net, optimizer, criterion, data):
     noderegen, recovered, mu, logvar, mu_n, var_n, output = net(data.x, data.adj)
     nc_loss = criterion(output[data.train_mask], data.y[data.train_mask])
     ae_loss = loss_function(preds=recovered[data.train_mask], labels=data.adj[data.train_mask],
-                            mu=mu[data.train_mask], logvar=logvar[data.train_mask], n_nodes=data.adj.size[0])
+                            mu=mu[data.train_mask], logvar=logvar[data.train_mask], n_nodes=data.adj.size(0))
     node_ae_loss = loss_function(preds=noderegen[data.train_mask], labels=data.x[data.train_mask],
-                                 mu=mu_n[data.train_mask], logvar=var_n[data.train_mask], n_nodes=data.adj.size[0])
+                                 mu=mu_n[data.train_mask], logvar=var_n[data.train_mask], n_nodes=data.adj.size(0))
     loss = nc_loss + 0.1*ae_loss + 0.1*node_ae_loss
     acc = accuracy(output[data.train_mask], data.y[data.train_mask])
     loss.backward()
