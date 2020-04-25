@@ -32,7 +32,7 @@ class GCN(nn.Module):
     def forward(self, x, adj):
         x = self.dropout(x)
         x = self.gc1(x, adj)
-        x = self.norm(x)
+        #x = self.norm(x)
         x = self.relu(x)
         x = self.dropout(x)
         x = self.gc2(x, adj)
