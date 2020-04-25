@@ -22,7 +22,7 @@ def train(net, optimizer, criterion, data):
                             mu=mu[data.train_mask], logvar=logvar[data.train_mask], n_nodes=data.adj.size(0))
     node_ae_loss = loss_function(preds=noderegen[data.train_mask], labels=data.x[data.train_mask],
                                  mu=mu_n[data.train_mask], logvar=var_n[data.train_mask], n_nodes=data.adj.size(0))
-    loss = nc_loss + 0.1*ae_loss + 0.1*node_ae_loss
+    loss = nc_loss + 0.1*ae_loss + 0.2*node_ae_loss
     acc = accuracy(output[data.train_mask], data.y[data.train_mask])
     loss.backward()
     optimizer.step()
