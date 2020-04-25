@@ -16,13 +16,12 @@ def loss_function(preds, labels, mu, logvar, n_nodes):
 def train(net, optimizer, criterion, data):
     net.train()
     optimizer.zero_grad()
-    noderegen, recovered, mu, logvar, mu_n, var_n, output = net(data.x, data.adj)
+    noderegen,  mu_n, var_n, output = net(data.x, data.adj)
     nc_loss = criterion(output[data.train_mask], data.y[data.train_mask])
-    ae_loss = loss_function(preds=recovered[data.train_mask], labels=data.adj[data.train_mask],
-                            mu=mu[data.train_mask], logvar=logvar[data.train_mask], n_nodes=data.adj.size(0))
+
     node_ae_loss = loss_function(preds=noderegen[data.train_mask], labels=data.x[data.train_mask],
                                  mu=mu_n[data.train_mask], logvar=var_n[data.train_mask], n_nodes=data.adj.size(0))
-    loss = nc_loss + 0.1*ae_loss + 0.2*node_ae_loss
+    loss = nc_loss +  0.1*node_ae_loss
     acc = accuracy(output[data.train_mask], data.y[data.train_mask])
     loss.backward()
     optimizer.step()
@@ -30,14 +29,14 @@ def train(net, optimizer, criterion, data):
 
 def val(net, criterion, data):
     net.eval()
-    noderegen, recovered, mu, logvar, mu_n, var_n, output = net(data.x, data.adj)
+    noderegen, mu_n, var_n, output = net(data.x, data.adj)
     loss_val = criterion(output[data.val_mask], data.y[data.val_mask])
     acc_val = accuracy(output[data.val_mask], data.y[data.val_mask])
     return loss_val, acc_val
 
 def test(net, criterion, data):
     net.eval()
-    noderegen, recovered, mu, logvar, mu_n, var_n, output = net(data.x, data.adj)
+    noderegen, recovered, mu_n, var_n, output = net(data.x, data.adj)
     loss_test = criterion(output[data.test_mask], data.y[data.test_mask])
     acc_test = accuracy(output[data.test_mask], data.y[data.test_mask])
     return loss_test, acc_test

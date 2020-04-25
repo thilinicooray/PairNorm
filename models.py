@@ -37,14 +37,14 @@ class GCN(nn.Module):
         self.gc_logvar_node = GraphConv(nhid, nhid)
 
         self.dc = InnerProductDecoder(dropout, act=lambda x: x)
-        self.node_regen = GraphConv(nhid, nfeat)
+        self.node_regen = nn.Linear(nhid, nfeat)
 
         self.dropout = nn.Dropout(p=dropout)
         self.relu = nn.ReLU(True)
         self.norm = PairNorm(norm_mode, norm_scale)
 
-    def encode(self, hidden1, adj, gc2, gc3, gc4, gc5):
-        return self.relu(gc2(hidden1, adj)), self.relu(gc3(hidden1, adj)), self.relu(gc4(hidden1, adj)), self.relu(gc5(hidden1, adj))
+    def encode(self, hidden1, adj, gc2, gc3):
+        return self.relu(gc2(hidden1, adj)), self.relu(gc3(hidden1, adj))
 
     def reparameterize(self, mu, logvar):
         if self.training:
@@ -59,19 +59,12 @@ class GCN(nn.Module):
         x = self.relu(self.gc1(x, adj))
 
         #vae
-        mu, logvar, mu_n, var_n = self.encode(self.dropout(x), adj, self.gc_mu_adj, self.gc_logvar_adj, self.gc_mu_node, self.gc_logvar_node)
-        z = self.reparameterize(mu, logvar)
+        mu_n, var_n = self.encode(self.dropout(x), adj, self.gc_mu_adj, self.gc_logvar_adj, self.gc_mu_node, self.gc_logvar_node)
         z_n = self.reparameterize(mu_n, var_n)
-        adj1 = self.dc(z)
 
 
-        #get masked new adj
-        zero_vec = -9e15*torch.ones_like(adj1)
-        masked_adj = torch.where(adj > 0, adj1, zero_vec)
-        #masked_adj = adj * adj1 + zero_vec
-        adj1 = F.softmax(masked_adj, dim=1)
 
-        a1 = self.relu(self.node_regen(self.dropout(z_n), adj1.t()))
+        a1 = self.relu(self.node_regen(self.dropout(z_n)))
         zero_vec = -9e15*torch.ones_like(a1)
         masked_nodes = torch.where(x_org > 0, a1, zero_vec)
         a1 = F.softmax(masked_nodes, dim=1)
@@ -79,8 +72,8 @@ class GCN(nn.Module):
         x = torch.cat([a1, x], -1)
         #x = self.norm(x)
         x = self.dropout(x)
-        x = self.gc2(x, adj+adj1)
-        return a1, adj1 , mu, logvar, mu_n, var_n, x
+        x = self.gc2(x, adj)
+        return a1,  mu_n, var_n, x
 
 class GAT(nn.Module):
     def __init__(self, nfeat, nhid, nclass, dropout, nhead, 
