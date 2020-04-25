@@ -67,12 +67,14 @@ class GCN(nn.Module):
 
         #get masked new adj
         zero_vec = -9e15*torch.ones_like(adj1)
-        masked_adj = torch.where(adj > 0, adj1, zero_vec)
+        #masked_adj = torch.where(adj > 0, adj1, zero_vec)
+        masked_adj = adj * adj1 + zero_vec
         adj1 = F.softmax(masked_adj, dim=1)
 
         a1 = self.relu(self.node_regen(self.dropout(z_n), adj1.t()))
         zero_vec = -9e15*torch.ones_like(a1)
-        masked_nodes = torch.where(x_org > 0, a1, zero_vec)
+        #masked_nodes = torch.where(x_org > 0, a1, zero_vec)
+        masked_nodes = x_org * a1 + zero_vec
         a1 = F.softmax(masked_nodes, dim=1)
 
         x = torch.cat([a1, x], -1)
