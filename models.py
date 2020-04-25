@@ -66,7 +66,7 @@ class GCN(nn.Module):
 
 
         #get masked new adj
-        zero_vec = torch.sparse.FloatTensor(-9e15*torch.ones_like(adj1))
+        zero_vec = -9e15*torch.ones_like(adj1)
         masked_adj = torch.where(adj > 0, adj1, zero_vec)
         #masked_adj = adj * adj1 + zero_vec
         adj1 = F.softmax(masked_adj, dim=1)
